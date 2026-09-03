@@ -1,0 +1,6 @@
+# Compiled Java bytecode — rebuild locally with: javac iPhoneCatalogApp.java
+*.class
+
+# OS/editor cruft
+.DS_Store
+.vscode/

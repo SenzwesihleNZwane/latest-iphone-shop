@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LATEST-IPHONE | Premium iPhone Lineup &amp; Lay-by</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Leaflet (store locator map) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Favicon (inline SVG monogram, no external file needed) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2316140f'/%3E%3Ctext x='32' y='43' font-family='Georgia,serif' font-size='30' fill='%23cba135' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E">
+
+  <style>
+    :root { --gold: #cba135; --ink: #16140f; --cream: #f5f2ea; }
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .font-display { font-family: 'Fraunces', 'Georgia', serif; }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f5f2ea; }
+    ::-webkit-scrollbar-thumb { background: #d8d3c5; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+    .dark ::-webkit-scrollbar-track { background: #0b0b0d; }
+    .dark ::-webkit-scrollbar-thumb { background: #232019; }
+    .dark ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+    .scrollbar-none::-webkit-scrollbar { display: none; }
+    .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Card entrance animation */
+    @keyframes cardIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .card-enter { animation: cardIn .45s ease both; }
+
+    /* Scroll-reveal (used by app.js initScrollReveal) */
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal-visible { opacity: 1; transform: translateY(0); }
+
+    /* Badges */
+    .tag-new { background: var(--ink); color: var(--gold); }
+    .tag-sale { background: #b3272d; color: #fff; }
+
+    /* Wishlist heart — CSS fill override beats the inline fill="none"
+       set at render time, so the icon updates instantly on click even
+       before the next full re-render. */
+    .heart-btn.active svg { fill: currentColor; }
+    .heart-btn.active { color: var(--gold); border-color: var(--gold) !important; }
+
+    /* Range sliders (calculator / trade-in) */
+    input[type="range"] { accent-color: var(--gold); }
+
+    #storeMap { z-index: 0; }
+    .leaflet-popup-content-wrapper { border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 12px; }
+  </style>
+</head>
+<body class="bg-[#f5f2ea] dark:bg-[#0b0b0d] text-[#16140f] dark:text-[#f5f1e8] font-sans antialiased selection:bg-[#cba135] selection:text-[#16140f] transition-colors duration-300 min-h-screen">
+
+  <!-- Top Announcement Bar -->
+  <div class="bg-[#16140f] text-[#e5e1d8] text-xs py-2.5 px-4 text-center tracking-tight font-normal">
+    <span>Flexible 2 to 6 Months Lay-by at 0% Interest across all SA branches.</span>
+    <a href="#layby" class="text-[#cba135] hover:text-[#e0bc5c] underline ml-1 font-medium">Learn more &rarr;</a>
+  </div>
+
+  <!-- Clearance Countdown (auto-hides once SALE_END_DATE passes — see app.js) -->
+  <div id="countdownBanner" class="bg-[#b3272d] text-white text-xs py-2 px-4 text-center hidden">
+    <span class="font-semibold">Clearance pricing on select models ends in:</span>
+    <span class="font-mono ml-2"><span id="cdD">00</span>d <span id="cdH">00</span>h <span id="cdM">00</span>m <span id="cdS">00</span>s</span>
+  </div>
+
+  <!-- Navigation Bar -->
+  <nav class="sticky top-0 z-40 bg-white/85 dark:bg-[#131316]/90 backdrop-blur-md border-b border-[#e5e1d8]/80 dark:border-[#232019]">
+    <div class="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+      <a href="#" class="flex items-center space-x-2.5">
+        <!-- Custom logo mark (no third-party brand marks used) -->
+        <svg width="26" height="26" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="16" fill="#16140f"/>
+          <path d="M32 15c-6.5 0-11.5 5.2-11.5 12 0 9 8.5 16 11.5 20 3-4 11.5-11 11.5-20 0-6.8-5-12-11.5-12z" fill="none" stroke="#cba135" stroke-width="2.4"/>
+          <circle cx="32" cy="27" r="4.2" fill="#cba135"/>
+        </svg>
+        <span class="font-display font-semibold text-base tracking-tight text-[#16140f] dark:text-white">Latest<span class="text-[#a87c1f] dark:text-[#cba135]">iPhone</span></span>
+      </a>
+
+      <div class="hidden md:flex space-x-7 text-xs font-medium text-[#6b6558] dark:text-[#9c9891] tracking-tight">
+        <a href="#catalog" class="hover:text-[#16140f] dark:hover:text-white transition">Lineup</a>
+        <a href="#smart-match" class="hover:text-[#16140f] dark:hover:text-white transition">Smart Match</a>
+        <a href="#calculator" class="hover:text-[#16140f] dark:hover:text-white transition">Calculator</a>
+        <a href="#trade-in" class="hover:text-[#16140f] dark:hover:text-white transition">Trade-In</a>
+        <a href="#branches" class="hover:text-[#16140f] dark:hover:text-white transition">Stores</a>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <!-- Dark Mode Toggle -->
+        <button id="themeToggleBtn" onclick="toggleDarkMode()"
+                class="flex items-center justify-center w-8 h-8 rounded-full border border-[#e5e1d8] dark:border-[#2a2620] bg-white dark:bg-[#1a1a1d] text-[#6b6558] dark:text-[#cba135] transition-all hover:opacity-80 cursor-pointer">
+          <i id="themeIcon" data-lucide="moon" class="w-4 h-4"></i>
+        </button>
+
+        <!-- Wishlist -->
+        <button id="wishlistNavBtn" onclick="toggleWishlistOnly()" title="View wishlist"
+                class="relative flex items-center justify-center w-8 h-8 rounded-full border border-[#e5e1d8] dark:border-[#2a2620] bg-white dark:bg-[#1a1a1d] text-[#6b6558] dark:text-[#9c9891] transition-all hover:opacity-80 cursor-pointer">
+          <i id="wishlistNavIcon" data-lucide="heart" class="w-4 h-4"></i>
+          <span id="wishlistCount" class="hidden absolute -top-1.5 -right-1.5 items-center justify-center w-4 h-4 rounded-full bg-[#cba135] text-[#16140f] text-[9px] font-bold"></span>
+        </button>
+
+        <!-- Order history -->
+        <button onclick="openOrderHistory()" title="Your orders"
+                class="hidden sm:flex items-center justify-center w-8 h-8 rounded-full border border-[#e5e1d8] dark:border-[#2a2620] bg-white dark:bg-[#1a1a1d] text-[#6b6558] dark:text-[#9c9891] transition-all hover:opacity-80 cursor-pointer">
+          <i data-lucide="receipt" class="w-4 h-4"></i>
+        </button>
+
+        <!-- Cart -->
+        <button onclick="toggleCartDrawer()" title="Cart"
+                class="relative flex items-center justify-center w-8 h-8 rounded-full border border-[#e5e1d8] dark:border-[#2a2620] bg-white dark:bg-[#1a1a1d] text-[#6b6558] dark:text-[#9c9891] transition-all hover:opacity-80 cursor-pointer">
+          <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+          <span id="cartCount" class="hidden absolute -top-1.5 -right-1.5 items-center justify-center w-4 h-4 rounded-full bg-[#cba135] text-[#16140f] text-[9px] font-bold"></span>
+        </button>
+
+        <!-- WhatsApp -->
+        <a href="https://wa.me/27638592102?text=Hi%20Latest-iPhone,%20I%20would%20like%20to%20inquire%20about%20an%20iPhone"
+           target="_blank"
+           class="bg-[#25D366] hover:bg-[#1fbd5a] text-white px-4 py-1.5 rounded-full text-xs font-semibold transition shadow-sm flex items-center gap-1.5">
+          <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">WhatsApp</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="pt-16 pb-12 px-6 max-w-7xl mx-auto text-center reveal">
+    <span class="text-xs font-semibold uppercase tracking-wider text-[#a87c1f] dark:text-[#cba135] mb-2 block">The Complete Collection</span>
+    <h1 class="font-display text-4xl md:text-6xl font-semibold tracking-tight text-[#16140f] dark:text-white max-w-3xl mx-auto leading-tight">
+      Buy iPhone.
+    </h1>
+    <p class="mt-3 text-[#6b6558] dark:text-[#9c9891] max-w-xl mx-auto text-base font-normal">
+      Compare models, select storage capacity, and choose between upfront cash or zero-interest lay-by terms.
+    </p>
+
+    <!-- About the store -->
+    <p class="mt-5 text-[#6b6558] dark:text-[#9c9891] max-w-2xl mx-auto text-sm leading-relaxed">
+      LatestiPhone is South Africa's home for the full iPhone lineup — from the newest Series 17 to
+      well-priced older generations — all in one place, backed by branches across SA and flexible lay-by so
+      you're never locked into paying it all upfront.
+    </p>
+
+    <div class="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs font-medium text-[#6b6558] dark:text-[#9c9891]">
+      <span class="flex items-center gap-1.5"><i data-lucide="shield-check" class="w-4 h-4 text-[#a87c1f] dark:text-[#cba135]"></i> Genuine Apple devices</span>
+      <span class="flex items-center gap-1.5"><i data-lucide="wallet" class="w-4 h-4 text-[#a87c1f] dark:text-[#cba135]"></i> 0% interest lay-by, 2–6 months</span>
+      <span class="flex items-center gap-1.5"><i data-lucide="map-pin" class="w-4 h-4 text-[#a87c1f] dark:text-[#cba135]"></i> Branches across SA</span>
+      <span class="flex items-center gap-1.5"><i data-lucide="message-circle" class="w-4 h-4 text-[#a87c1f] dark:text-[#cba135]"></i> Real answers on WhatsApp</span>
+    </div>
+  </section>
+
+  <!-- Product Catalog Section -->
+  <section id="catalog" class="py-8 px-6 max-w-7xl mx-auto reveal">
+    <div class="flex flex-col gap-4 mb-6 pb-6 border-b border-[#e5e1d8] dark:border-[#232019]">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <!-- Search Bar -->
+        <div class="relative w-full md:w-72">
+          <i data-lucide="search" class="w-4 h-4 text-[#a09a8c] absolute left-3.5 top-2.5"></i>
+          <input type="text" id="searchInput" oninput="filterCatalog()" placeholder="Search model (e.g., 15 Pro, Mini)..."
+                 class="w-full bg-white dark:bg-[#1a1a1d] border border-[#e5e1d8] dark:border-[#2a2620] rounded-full pl-9 pr-4 py-2 text-xs text-[#16140f] dark:text-white placeholder-[#a09a8c] focus:outline-none focus:ring-2 focus:ring-[#cba135]/30 focus:border-[#cba135] transition">
+        </div>
+
+        <!-- Sort -->
+        <select id="sortSelect" onchange="applyFilters()"
+                class="bg-white dark:bg-[#1a1a1d] border border-[#e5e1d8] dark:border-[#2a2620] rounded-full px-4 py-2 text-xs text-[#16140f] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#cba135]/30">
+          <option value="featured">Sort: Featured</option>
+          <option value="newest">Sort: Newest</option>
+          <option value="price-low">Sort: Price (Low to High)</option>
+          <option value="price-high">Sort: Price (High to Low)</option>
+          <option value="name">Sort: Name (A–Z)</option>
+        </select>
+
+        <!-- Generation Filters -->
+        <div class="flex items-center space-x-1.5 overflow-x-auto pb-2 md:pb-0 scrollbar-none" id="genFilters">
+          <button onclick="filterGen('all', this)" class="gen-btn bg-[#16140f] text-[#cba135] dark:bg-[#cba135] dark:text-[#16140f] text-xs px-4 py-2 rounded-full font-medium transition whitespace-nowrap">All</button>
+          <button onclick="filterGen('17', this)" class="gen-btn bg-white border border-[#e5e1d8] dark:bg-[#1a1a1d] dark:border-[#2a2620] text-[#6b6558] dark:text-[#9c9891] hover:border-[#cba135] text-xs px-4 py-2 rounded-full font-medium transition whitespace-nowrap">iPhone 17</button>
+          <button onclick="filterGen('16', this)" class="gen-btn bg-white border border-[#e5e1d8] dark:bg-[#1a1a1d] dark:border-[#2a2620] text-[#6b6558] dark:text-[#9c9891] hover:border-[#cba135] text-xs px-4 py-2 rounded-full font-medium transition whitespace-nowrap">iPhone 16</button>
+          <button onclick="filterGen('15', this)" class="gen-btn bg-white border border-[#e5e1d8] dark:bg-[#1a1a1d] dark:border-[#2a2620] text-[#6b6558] dark:text-[#9c9891] hover:border-[#cba135] text-xs px-4 py-2 rounded-full font-medium transition whitespace-nowrap">iPhone 15</button>
+          <button onclick="filterGen('14', this)" class="gen-btn bg-white border border-[#e5e1d8] dark:bg-[#1a1a1d] dark:border-[#2a2620] text-[#6b6558] dark:text-[#9c9891] hover:border-[#cba135] text-xs px-4 py-2 rounded-full font-medium transition whitespace-nowrap">iPhone 14</button>
+          <button onclick="filterGen('13', this)" class="gen-btn bg-white border border-[#e5e1d8] dark:bg-[#1a1a1d] dark:border-[#2a2620] text-[#6b6558] dark:text-[#9c9891] hover:border-[#cba135] text-xs px-4 py-2 rounded-full font-medium transition whitespace-nowrap">iPhone 13</button>
+          <button onclick="filterGen('12', this)" class="gen-btn bg-white border border-[#e5e1d8] dark:bg-[#1a1a1d] dark:border-[#2a2620] text-[#6b6558] dark:text-[#9c9891] hover:border-[#cba135] text-xs px-4 py-2 rounded-full font-medium transition whitespace-nowrap">iPhone 12</button>
+          <button onclick="filterGen('11', this)" class="gen-btn bg-white border border-[#e5e1d8] dark:bg-[#1a1a1d] dark:border-[#2a2620] text-[#6b6558] dark:text-[#9c9891] hover:border-[#cba135] text-xs px-4 py-2 rounded-full font-medium transition whitespace-nowrap">iPhone 11</button>
+          <button onclick="filterGen('x', this)" class="gen-btn bg-white border border-[#e5e1d8] dark:bg-[#1a1a1d] dark:border-[#2a2620] text-[#6b6558] dark:text-[#9c9891] hover:border-[#cba135] text-xs px-4 py-2 rounded-full font-medium transition whitespace-nowrap">iPhone X / XS / XR</button>
+        </div>
+      </div>
+      <p id="resultCount" class="text-[11px] font-mono text-[#a09a8c]">Showing all models</p>
+
+      <!-- Wishlist-only mode banner: only visible while that view is on, with a one-click way out -->
+      <div id="wishlistModeBanner" class="hidden items-center justify-between gap-3 bg-[#cba135]/10 border border-[#cba135]/40 text-[#8a661a] dark:text-[#cba135] text-xs font-medium px-4 py-2.5 rounded-xl">
+        <span class="flex items-center gap-1.5"><i data-lucide="heart" class="w-3.5 h-3.5"></i> Showing wishlist only</span>
+        <button onclick="toggleWishlistOnly()" class="underline hover:no-underline font-semibold">Show all iPhones</button>
+      </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div id="productGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <!-- Dynamic Products Grid (rendered by script.js) -->
+    </div>
+  </section>
+
+  <!-- Smart Match Quiz -->
+  <section id="smart-match" class="py-14 px-6 max-w-7xl mx-auto reveal">
+    <div class="bg-white dark:bg-[#131316] rounded-3xl p-8 md:p-12 border border-[#e5e1d8] dark:border-[#232019] shadow-sm">
+      <span class="text-xs font-semibold uppercase tracking-wider text-[#a87c1f] dark:text-[#cba135] block mb-2">Not sure which one?</span>
+      <h2 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-6">Find your match in 3 taps.</h2>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <div data-quiz-group>
+          <p class="text-xs font-semibold uppercase tracking-wide text-[#a09a8c] mb-2">Budget</p>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="quizPick('budget','entry', this)" class="text-xs px-3 py-2 rounded-lg border border-[#e5e1d8] dark:border-[#2a2620] bg-[#f5f2ea] dark:bg-[#1a1a1d] hover:border-[#cba135] transition">Entry-level</button>
+            <button onclick="quizPick('budget','mid', this)" class="text-xs px-3 py-2 rounded-lg border border-[#e5e1d8] dark:border-[#2a2620] bg-[#f5f2ea] dark:bg-[#1a1a1d] hover:border-[#cba135] transition">Mid-range</button>
+            <button onclick="quizPick('budget','premium', this)" class="text-xs px-3 py-2 rounded-lg border border-[#e5e1d8] dark:border-[#2a2620] bg-[#f5f2ea] dark:bg-[#1a1a1d] hover:border-[#cba135] transition">Premium</button>
+          </div>
+        </div>
+        <div data-quiz-group>
+          <p class="text-xs font-semibold uppercase tracking-wide text-[#a09a8c] mb-2">What matters most?</p>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="quizPick('priority','camera', this)" class="text-xs px-3 py-2 rounded-lg border border-[#e5e1d8] dark:border-[#2a2620] bg-[#f5f2ea] dark:bg-[#1a1a1d] hover:border-[#cba135] transition">Camera</button>
+            <button onclick="quizPick('priority','battery', this)" class="text-xs px-3 py-2 rounded-lg border border-[#e5e1d8] dark:border-[#2a2620] bg-[#f5f2ea] dark:bg-[#1a1a1d] hover:border-[#cba135] transition">Battery</button>
+            <button onclick="quizPick('priority','performance', this)" class="text-xs px-3 py-2 rounded-lg border border-[#e5e1d8] dark:border-[#2a2620] bg-[#f5f2ea] dark:bg-[#1a1a1d] hover:border-[#cba135] transition">Performance</button>
+            <button onclick="quizPick('priority','value', this)" class="text-xs px-3 py-2 rounded-lg border border-[#e5e1d8] dark:border-[#2a2620] bg-[#f5f2ea] dark:bg-[#1a1a1d] hover:border-[#cba135] transition">Best Value</button>
+          </div>
+        </div>
+        <div data-quiz-group>
+          <p class="text-xs font-semibold uppercase tracking-wide text-[#a09a8c] mb-2">Size</p>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="quizPick('size','compact', this)" class="text-xs px-3 py-2 rounded-lg border border-[#e5e1d8] dark:border-[#2a2620] bg-[#f5f2ea] dark:bg-[#1a1a1d] hover:border-[#cba135] transition">Compact</button>
+            <button onclick="quizPick('size','standard', this)" class="text-xs px-3 py-2 rounded-lg border border-[#e5e1d8] dark:border-[#2a2620] bg-[#f5f2ea] dark:bg-[#1a1a1d] hover:border-[#cba135] transition">Standard</button>
+            <button onclick="quizPick('size','max', this)" class="text-xs px-3 py-2 rounded-lg border border-[#e5e1d8] dark:border-[#2a2620] bg-[#f5f2ea] dark:bg-[#1a1a1d] hover:border-[#cba135] transition">Max</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="quizResults" class="hidden mt-8 pt-6 border-t border-[#e5e1d8] dark:border-[#232019]"></div>
+    </div>
+  </section>
+
+  <!-- Lay-by Section -->
+  <section id="layby" class="py-8 px-6 max-w-7xl mx-auto reveal">
+    <div class="bg-white dark:bg-[#131316] rounded-3xl p-8 md:p-14 border border-[#e5e1d8] dark:border-[#232019] shadow-sm text-center">
+      <span class="text-xs font-semibold uppercase tracking-wider text-[#a87c1f] dark:text-[#cba135] block mb-2">Simple Finance</span>
+      <h2 class="font-display text-3xl font-semibold tracking-tight mb-3">Lay-by on your terms. 0% Interest.</h2>
+      <p class="text-[#6b6558] dark:text-[#9c9891] text-sm max-w-lg mx-auto mb-10">Lock in your iPhone today with a small deposit and split the balance evenly over 2 to 6 months.</p>
+
+      <div class="grid md:grid-cols-3 gap-6 text-left">
+        <div class="bg-[#f5f2ea] dark:bg-[#1a1a1d] p-6 rounded-2xl">
+          <div class="font-semibold text-base mb-1">1. Choose Storage &amp; Plan</div>
+          <p class="text-xs text-[#6b6558] dark:text-[#9c9891] leading-relaxed">Select your preferred storage tier (128GB, 256GB, 512GB, 1TB) and reserve the exact device.</p>
+        </div>
+        <div class="bg-[#f5f2ea] dark:bg-[#1a1a1d] p-6 rounded-2xl">
+          <div class="font-semibold text-base mb-1">2. Zero Hidden Fees</div>
+          <p class="text-xs text-[#6b6558] dark:text-[#9c9891] leading-relaxed">Pay monthly installments across 2, 3, 4, 5, or 6 months with absolute transparency.</p>
+        </div>
+        <div class="bg-[#f5f2ea] dark:bg-[#1a1a1d] p-6 rounded-2xl">
+          <div class="font-semibold text-base mb-1">3. Collect In-Store</div>
+          <p class="text-xs text-[#6b6558] dark:text-[#9c9891] leading-relaxed">Pick up your newly unboxed device at any of our 6 retail branches upon final payment.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lay-by Calculator -->
+  <section id="calculator" class="py-8 px-6 max-w-7xl mx-auto reveal">
+    <div class="bg-white dark:bg-[#131316] rounded-3xl p-8 md:p-12 border border-[#e5e1d8] dark:border-[#232019] shadow-sm">
+      <span class="text-xs font-semibold uppercase tracking-wider text-[#a87c1f] dark:text-[#cba135] block mb-2">Plan Ahead</span>
+      <h2 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-6">Lay-by Calculator</h2>
+
+      <div class="grid md:grid-cols-2 gap-10">
+        <div class="space-y-5">
+          <div>
+            <label class="text-xs font-semibold uppercase tracking-wide text-[#a09a8c] block mb-2">Model</label>
+            <select id="calcModel" class="w-full bg-[#f5f2ea] dark:bg-[#1a1a1d] border border-[#e5e1d8] dark:border-[#2a2620] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#cba135]/30"></select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold uppercase tracking-wide text-[#a09a8c] flex justify-between mb-2">
+              <span>Lay-by Term</span><span id="calcMonthsLabel" class="font-mono text-[#16140f] dark:text-white">6 months</span>
+            </label>
+            <input type="range" id="calcMonths" min="2" max="6" step="1" value="6" class="w-full">
+          </div>
+          <div>
+            <label class="text-xs font-semibold uppercase tracking-wide text-[#a09a8c] flex justify-between mb-2">
+              <span>Deposit</span><span id="calcDepositLabel" class="font-mono text-[#16140f] dark:text-white">20%</span>
+            </label>
+            <input type="range" id="calcDeposit" min="10" max="50" step="5" value="20" class="w-full">
+          </div>
+        </div>
+
+        <div class="bg-[#f5f2ea] dark:bg-[#1a1a1d] rounded-2xl p-6 flex flex-col justify-center gap-3">
+          <div class="flex justify-between text-sm"><span class="text-[#6b6558] dark:text-[#9c9891]">Device Price</span><span id="calcTotal" class="font-mono font-semibold">—</span></div>
+          <div class="flex justify-between text-sm"><span class="text-[#6b6558] dark:text-[#9c9891]">Balance after deposit</span><span id="calcBalance" class="font-mono font-semibold">—</span></div>
+          <div class="border-t border-[#e5e1d8] dark:border-[#2a2620] pt-3 flex justify-between items-baseline">
+            <span class="text-sm font-semibold">Monthly Payment</span>
+            <span id="calcMonthly" class="font-mono text-xl font-bold text-[#a87c1f] dark:text-[#cba135]">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trade-In Estimator -->
+  <section id="trade-in" class="py-8 px-6 max-w-7xl mx-auto reveal">
+    <div class="bg-white dark:bg-[#131316] rounded-3xl p-8 md:p-12 border border-[#e5e1d8] dark:border-[#232019] shadow-sm">
+      <span class="text-xs font-semibold uppercase tracking-wider text-[#a87c1f] dark:text-[#cba135] block mb-2">Trade In &amp; Save</span>
+      <h2 class="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-2">Trade-In Estimator</h2>
+      <p class="text-xs text-[#a09a8c] mb-6">Illustrative only — final value is confirmed in-store on inspection.</p>
+
+      <div class="grid md:grid-cols-2 gap-10">
+        <div class="space-y-5">
+          <div>
+            <label class="text-xs font-semibold uppercase tracking-wide text-[#a09a8c] block mb-2">Your current iPhone</label>
+            <select id="tradeModel" class="w-full bg-[#f5f2ea] dark:bg-[#1a1a1d] border border-[#e5e1d8] dark:border-[#2a2620] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#cba135]/30"></select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold uppercase tracking-wide text-[#a09a8c] block mb-2">Condition</label>
+            <select id="tradeCondition" class="w-full bg-[#f5f2ea] dark:bg-[#1a1a1d] border border-[#e5e1d8] dark:border-[#2a2620] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#cba135]/30">
+              <option value="likenew">Like New</option>
+              <option value="good">Good</option>
+              <option value="fair">Fair</option>
+              <option value="broken">Broken / Faulty</option>
+            </select>
+          </div>
+        </div>
+        <div class="bg-[#f5f2ea] dark:bg-[#1a1a1d] rounded-2xl p-6 flex flex-col justify-center items-center text-center gap-3">
+          <span class="text-xs uppercase tracking-wide text-[#a09a8c]">Estimated Trade-In Value</span>
+          <span id="tradeEstimate" class="font-mono text-3xl font-bold text-[#a87c1f] dark:text-[#cba135]">—</span>
+          <a id="tradeWaLink" href="#" target="_blank" class="mt-2 bg-[#16140f] dark:bg-[#cba135] text-[#cba135] dark:text-[#16140f] text-xs font-semibold px-5 py-2.5 rounded-full hover:opacity-90 transition flex items-center gap-1.5">
+            <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Get this confirmed on WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Accessories -->
+  <section id="accessories" class="py-8 px-6 max-w-7xl mx-auto reveal">
+    <div class="text-center mb-8">
+      <span class="text-xs font-semibold uppercase tracking-wider text-[#a87c1f] dark:text-[#cba135] block mb-2">Complete the Setup</span>
+      <h2 class="font-display text-2xl md:text-3xl font-semibold tracking-tight">Accessories</h2>
+    </div>
+    <div id="accessoriesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  </section>
+
+  <!-- Store Locations -->
+  <section id="branches" class="py-12 px-6 max-w-7xl mx-auto border-t border-[#e5e1d8] dark:border-[#232019] reveal">
+    <div class="text-center mb-8">
+      <h2 class="font-display text-xl font-semibold tracking-tight">Visit An Authorized Location</h2>
+      <p class="text-xs text-[#6b6558] dark:text-[#9c9891] mt-1">Store pickup available in 6 South African locations</p>
+    </div>
+
+    <div id="storeMap" class="w-full h-72 rounded-2xl overflow-hidden mb-6 border border-[#e5e1d8] dark:border-[#232019]"></div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div class="bg-white dark:bg-[#131316] border border-[#e5e1d8] dark:border-[#232019] p-4 rounded-2xl text-center shadow-sm">
+        <i data-lucide="map-pin" class="text-[#a87c1f] dark:text-[#cba135] w-4 h-4 mx-auto mb-1.5"></i>
+        <div class="font-medium text-xs">Pretoria</div>
+      </div>
+      <div class="bg-white dark:bg-[#131316] border border-[#e5e1d8] dark:border-[#232019] p-4 rounded-2xl text-center shadow-sm">
+        <i data-lucide="map-pin" class="text-[#a87c1f] dark:text-[#cba135] w-4 h-4 mx-auto mb-1.5"></i>
+        <div class="font-medium text-xs">Durban</div>
+      </div>
+      <div class="bg-white dark:bg-[#131316] border border-[#e5e1d8] dark:border-[#232019] p-4 rounded-2xl text-center shadow-sm">
+        <i data-lucide="map-pin" class="text-[#a87c1f] dark:text-[#cba135] w-4 h-4 mx-auto mb-1.5"></i>
+        <div class="font-medium text-xs">Pinetown</div>
+      </div>
+      <div class="bg-white dark:bg-[#131316] border border-[#e5e1d8] dark:border-[#232019] p-4 rounded-2xl text-center shadow-sm">
+        <i data-lucide="map-pin" class="text-[#a87c1f] dark:text-[#cba135] w-4 h-4 mx-auto mb-1.5"></i>
+        <div class="font-medium text-xs">Richards Bay</div>
+      </div>
+      <div class="bg-white dark:bg-[#131316] border border-[#e5e1d8] dark:border-[#232019] p-4 rounded-2xl text-center shadow-sm">
+        <i data-lucide="map-pin" class="text-[#a87c1f] dark:text-[#cba135] w-4 h-4 mx-auto mb-1.5"></i>
+        <div class="font-medium text-xs">Nelspruit</div>
+      </div>
+      <div class="bg-white dark:bg-[#131316] border border-[#e5e1d8] dark:border-[#232019] p-4 rounded-2xl text-center shadow-sm">
+        <i data-lucide="map-pin" class="text-[#a87c1f] dark:text-[#cba135] w-4 h-4 mx-auto mb-1.5"></i>
+        <div class="font-medium text-xs">Manguzi</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="border-t border-[#e5e1d8] dark:border-[#232019] py-8 text-center text-xs text-[#a09a8c]">
+    <p>&copy; 2026 LATEST-IPHONE. Interactive retail showcase &amp; pitch client application.</p>
+  </footer>
+
+  <!-- ======================= Compare bar (bottom, floating) ======================= -->
+  <div id="compareBar" class="fixed bottom-0 left-0 right-0 z-40 bg-[#16140f] text-white px-6 py-3 flex flex-col sm:flex-row items-center gap-3 justify-between transition-all duration-300 translate-y-24 opacity-0 pointer-events-none">
+    <div class="flex items-center gap-2 flex-wrap">
+      <span class="text-xs font-semibold text-[#cba135] uppercase tracking-wide mr-1">Comparing:</span>
+      <div id="compareChips" class="flex items-center gap-2 flex-wrap"></div>
+    </div>
+    <button id="compareCta" onclick="openCompareModal()" disabled
+            class="bg-[#cba135] disabled:opacity-40 text-[#16140f] text-xs font-semibold px-5 py-2 rounded-full hover:opacity-90 transition whitespace-nowrap">
+      Compare Models
+    </button>
+  </div>
+
+  <!-- ======================= Cart drawer ======================= -->
+  <div id="cartOverlay" onclick="closeCartDrawer()" class="hidden fixed inset-0 bg-black/50 z-40"></div>
+  <aside id="cartDrawer" class="fixed top-0 right-0 h-full w-full sm:w-96 bg-white dark:bg-[#131316] z-50 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-[#e5e1d8] dark:border-[#232019]">
+      <h3 class="font-display text-lg font-bold">Your Cart</h3>
+      <button onclick="closeCartDrawer()" class="w-8 h-8 rounded-full hover:bg-[#f5f2ea] dark:hover:bg-[#1a1a1d] flex items-center justify-center"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+    <div id="cartDrawerBody" class="flex-1 flex flex-col overflow-y-auto"></div>
+  </aside>
+
+  <!-- ======================= Checkout modal ======================= -->
+  <div id="checkoutModal" onclick="if(event.target===this) closeModal('checkoutModal')" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-[#131316] rounded-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-display text-xl font-bold">Checkout</h3>
+        <button onclick="closeModal('checkoutModal')" class="w-8 h-8 rounded-full hover:bg-[#f5f2ea] dark:hover:bg-[#1a1a1d] flex items-center justify-center"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <p class="text-[10px] text-[#a09a8c] font-mono mb-3">No payment is taken here — this sends your order to us on WhatsApp to confirm.</p>
+      <div id="checkoutSummary" class="bg-[#f5f2ea] dark:bg-[#1a1a1d] rounded-xl p-4 mb-4"></div>
+      <form onsubmit="return submitOrder(event)" class="space-y-3">
+        <input required name="custName" placeholder="Your full name" class="w-full bg-[#f5f2ea] dark:bg-[#1a1a1d] border border-[#e5e1d8] dark:border-[#2a2620] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#cba135]/30">
+        <input required name="custPhone" placeholder="WhatsApp / contact number" class="w-full bg-[#f5f2ea] dark:bg-[#1a1a1d] border border-[#e5e1d8] dark:border-[#2a2620] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#cba135]/30">
+        <select name="custBranch" id="checkoutBranch" class="w-full bg-[#f5f2ea] dark:bg-[#1a1a1d] border border-[#e5e1d8] dark:border-[#2a2620] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#cba135]/30"></select>
+        <select name="custPayment" class="w-full bg-[#f5f2ea] dark:bg-[#1a1a1d] border border-[#e5e1d8] dark:border-[#2a2620] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#cba135]/30">
+          <option value="Cash / EFT">Cash / EFT (full amount)</option>
+          <option value="Lay-by">Lay-by (2–6 months, 0% interest)</option>
+        </select>
+        <textarea name="custNotes" rows="2" placeholder="Notes (optional)" class="w-full bg-[#f5f2ea] dark:bg-[#1a1a1d] border border-[#e5e1d8] dark:border-[#2a2620] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#cba135]/30"></textarea>
+        <button type="submit" class="w-full bg-[#16140f] dark:bg-[#cba135] text-[#cba135] dark:text-[#16140f] text-sm font-semibold py-3 rounded-full hover:opacity-90 transition flex items-center justify-center gap-2">
+          <i data-lucide="message-circle" class="w-4 h-4"></i> Send Order via WhatsApp
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================= Orders modal ======================= -->
+  <div id="ordersModal" onclick="if(event.target===this) closeModal('ordersModal')" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-[#131316] rounded-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto p-6">
+      <div id="ordersModalBody"></div>
+    </div>
+  </div>
+
+  <!-- ======================= Reviews modal ======================= -->
+  <div id="reviewsModal" onclick="if(event.target===this) closeModal('reviewsModal')" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-[#131316] rounded-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto p-6">
+      <div id="reviewsModalBody"></div>
+    </div>
+  </div>
+
+  <!-- ======================= Compare modal ======================= -->
+  <div id="compareModal" onclick="if(event.target===this) closeModal('compareModal')" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-[#131316] rounded-2xl w-full max-w-3xl max-h-[85vh] overflow-y-auto p-6">
+      <div id="compareModalBody"></div>
+    </div>
+  </div>
+
+  <!-- ======================= Interactive viewer modal ======================= -->
+  <div id="viewerModal" onclick="if(event.target===this) closeModal('viewerModal')" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-[#131316] rounded-2xl w-full max-w-md p-6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 id="viewerTitle" class="font-display text-base font-bold"></h3>
+        <button onclick="closeModal('viewerModal')" class="w-8 h-8 rounded-full hover:bg-[#f5f2ea] dark:hover:bg-[#1a1a1d] flex items-center justify-center"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div id="viewerStage" class="w-full h-72 bg-[#f5f2ea] dark:bg-[#0b0b0d] rounded-xl flex items-center justify-center cursor-grab active:cursor-grabbing" style="perspective:800px;"></div>
+      <p class="text-[10px] text-[#a09a8c] text-center mt-3">Drag to rotate</p>
+    </div>
+  </div>
+
+  <!-- App scripts — load order matters: app.js defines helpers script.js's
+       cards call, cart.js reads state script.js exposes on window, and
+       script.js renders the catalog last. -->
+  <script src="app.js"></script>
+  <script src="cart.js"></script>
+  <script src="script.js"></script>
+
+  <!-- Dark Mode Logic -->
+  <script>
+    function updateThemeUI(isDark) {
+      const icon = document.getElementById('themeIcon');
+      if (icon) icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    }
+
+    function toggleDarkMode() {
+      const html = document.documentElement;
+      const isDark = html.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      updateThemeUI(isDark);
+    }
+
+    (function initTheme() {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const isDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
+
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        updateThemeUI(isDark);
+      });
+    })();
+  </script>
+</body>
+</html>
