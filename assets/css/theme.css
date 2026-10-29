@@ -1,0 +1,105 @@
+/* LATEST-IPHONE theme for the inner pages (checkout, payment, orders, layby, login, admin).
+   The home page uses the Tailwind classes from the original design; this file makes every
+   other page match it: cream + ink + gold, Fraunces headings, full dark mode. */
+:root{
+  --bg:#f5f2ea; --card:#ffffff; --soft:#f5f2ea; --ink:#16140f; --muted:#6b6558; --faint:#a09a8c;
+  --line:#e5e1d8; --gold:#cba135; --gold-d:#a87c1f; --ok:#157f3b; --err:#b3272d; --warn:#8a661a;
+  --shadow:0 1px 2px rgba(22,20,15,.04);
+}
+html.dark{
+  --bg:#0b0b0d; --card:#131316; --soft:#1a1a1d; --ink:#f5f1e8; --muted:#9c9891; --faint:#a09a8c;
+  --line:#232019; --gold:#cba135; --gold-d:#cba135; --ok:#4ade80; --err:#f87171; --warn:#cba135;
+  --shadow:none;
+}
+body{font-family:'Inter',system-ui,sans-serif}
+.font-display,h1,h2,h3{font-family:'Fraunces',Georgia,serif}
+::-webkit-scrollbar{width:8px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:#d8d3c5;border-radius:4px}
+html.dark ::-webkit-scrollbar-thumb{background:#232019}
+
+.page{max-width:1120px;margin:0 auto;padding:36px 24px 80px}
+.page h1{font-size:2rem;font-weight:600;letter-spacing:-.02em;margin:.1em 0 .5em;line-height:1.15}
+.page h2{font-size:1.25rem;font-weight:600;letter-spacing:-.01em;margin:.2em 0 .6em}
+.page h3{font-size:1.05rem;font-weight:600;margin:.2em 0}
+.page p{color:inherit}
+.page small,.muted{color:var(--faint)}
+.page a{color:var(--gold-d)}
+.page a:hover{text-decoration:underline}
+.page hr{border:0;border-top:1px solid var(--line);margin:14px 0}
+.eyebrow{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--gold-d);display:block;margin-bottom:6px}
+
+/* ---------- cards / summaries ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow)}
+.summary{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:var(--shadow)}
+.row{display:flex;justify-content:space-between;gap:12px;margin:8px 0;font-size:.9rem}
+.total{font-weight:700;font-size:1.1rem}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.two-col{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:start}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--ink);color:var(--gold);border:0;border-radius:999px;padding:11px 22px;font-size:.85rem;font-weight:600;cursor:pointer;transition:opacity .15s;font-family:inherit;text-decoration:none}
+html.dark .btn{background:var(--gold);color:#16140f}
+.btn:hover{opacity:.88;text-decoration:none!important}
+.page a.btn{color:var(--gold)}
+html.dark .page a.btn{color:#16140f}
+.btn.secondary{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.page a.btn.secondary{color:var(--ink)}
+.btn.secondary:hover{border-color:var(--gold);opacity:1}
+.btn.danger{background:var(--err);color:#fff}
+.btn.small{padding:7px 14px;font-size:.75rem}
+.btn.wide{width:100%}
+
+/* ---------- forms ---------- */
+form.stack{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px;box-shadow:var(--shadow)}
+form.stack.narrow{max-width:460px}
+form.stack label{display:block;margin:14px 0 6px;font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--faint)}
+form.stack label.opt{display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-weight:500;font-size:.85rem;color:var(--ink);margin:8px 0;cursor:pointer}
+form.stack input:not([type=radio]):not([type=checkbox]),form.stack select,form.stack textarea,.field{width:100%;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:.9rem;color:var(--ink);font-family:inherit;transition:border-color .15s,box-shadow .15s}
+form.stack input:focus,form.stack select:focus,form.stack textarea:focus,.field:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(203,161,53,.22)}
+form.stack input[type=radio],form.stack input[type=checkbox]{width:auto;accent-color:var(--gold)}
+.error-text{color:var(--err);font-size:.75rem;min-height:1em;margin-top:4px}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px;align-items:center}
+.filters select,.filters input{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:9px 16px;font-size:.8rem;color:var(--ink)}
+
+/* ---------- tables ---------- */
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+th{font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);background:var(--soft);font-weight:600}
+table input,table select{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:6px 10px;color:var(--ink);font-size:.85rem}
+
+/* ---------- badges / alerts ---------- */
+.badge{display:inline-block;font-size:.65rem;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--soft);color:var(--gold-d);text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--line)}
+.badge.ok{color:var(--ok)}.badge.out{color:var(--err)}.badge.pre{color:var(--warn)}
+.alert{padding:12px 16px;border-radius:12px;margin-bottom:18px;font-size:.85rem;font-weight:500;border:1px solid var(--line);background:var(--card)}
+.alert.ok{border-color:var(--ok);color:var(--ok)}.alert.err{border-color:var(--err);color:var(--err)}.alert.warn{border-color:var(--gold);color:var(--warn)}.alert.info{border-color:var(--line)}
+
+/* ---------- admin stat tiles + misc ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+.stat span{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--faint)}
+.stat b{display:block;font-family:'Fraunces',serif;font-size:1.7rem;margin-top:4px}
+.line-item{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.line-item img{width:52px;height:52px;object-fit:contain;background:var(--soft);border-radius:10px}
+.progress{background:var(--soft);border-radius:99px;height:8px;margin:10px 0;overflow:hidden}
+.progress>div{background:var(--gold);height:8px;border-radius:99px}
+.hidden{display:none}
+details summary{cursor:pointer;color:var(--gold-d);margin-top:8px;font-size:.85rem}
+
+@media(max-width:860px){.two-col{grid-template-columns:1fr}.page{padding:24px 16px 60px}.page h1{font-size:1.6rem}}
+
+/* ---------- payment provider chooser ---------- */
+.gw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.gw-card{position:relative;display:flex;flex-direction:column;gap:4px;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px;cursor:pointer;transition:border-color .2s,transform .25s,box-shadow .25s}
+.gw-card:hover{transform:translateY(-3px);box-shadow:0 14px 28px -16px rgba(22,20,15,.35)}
+.gw-card.on{border-color:var(--gw);box-shadow:0 0 0 4px color-mix(in srgb,var(--gw) 18%,transparent)}
+.gw-card input{position:absolute;opacity:0;pointer-events:none}
+.gw-badge{width:38px;height:38px;border-radius:11px;background:var(--gw);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;font-size:1.1rem;margin-bottom:6px}
+.gw-name{font-weight:700;font-size:1rem}
+.gw-blurb{font-size:.75rem;color:var(--muted);line-height:1.4}
+.gw-methods{font-size:.65rem;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-top:6px}
+.gw-live{position:absolute;top:10px;right:10px;font-size:.6rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ok)}
+.gw-methods-box{display:flex;gap:10px;flex-wrap:wrap}
+.gw-method{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:10px 18px;font-size:.85rem;font-weight:600;cursor:pointer}
+.gw-method input{accent-color:var(--gold)}
+@media(max-width:700px){.gw-grid{grid-template-columns:1fr}}

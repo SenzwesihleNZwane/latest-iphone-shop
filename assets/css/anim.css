@@ -1,0 +1,104 @@
+/* LatestiPhone animation system. Everything respects prefers-reduced-motion (see bottom). */
+@keyframes riseIn   {from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes fadeIn   {from{opacity:0}to{opacity:1}}
+@keyframes slideL   {from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:none}}
+@keyframes slideR   {from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+@keyframes zoomIn   {from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+@keyframes floatY   {0%,100%{transform:translateY(0) rotate(var(--r,0deg))}50%{transform:translateY(-16px) rotate(var(--r,0deg))}}
+@keyframes blobMove {0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-30px) scale(1.12)}66%{transform:translate(-30px,25px) scale(.94)}}
+@keyframes marquee  {from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes pinPulse {0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
+@keyframes ringPulse{0%{transform:scale(.7);opacity:.7}100%{transform:scale(1.9);opacity:0}}
+@keyframes shine    {from{transform:translateX(-120%) skewX(-20deg)}to{transform:translateX(220%) skewX(-20deg)}}
+@keyframes drawLine {from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes gradShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes bump     {0%{transform:scale(1)}40%{transform:scale(1.5)}100%{transform:scale(1)}}
+@keyframes pageIn   {from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* page enter */
+body{animation:pageIn .55s ease both}
+
+/* scroll-triggered (anim.js adds .in-view) */
+[data-anim]{opacity:0;will-change:transform,opacity}
+[data-anim].in-view{animation-duration:.8s;animation-timing-function:cubic-bezier(.2,.7,.2,1);animation-fill-mode:both;animation-delay:var(--d,0s)}
+[data-anim="up"].in-view{animation-name:riseIn}
+[data-anim="fade"].in-view{animation-name:fadeIn}
+[data-anim="left"].in-view{animation-name:slideL}
+[data-anim="right"].in-view{animation-name:slideR}
+[data-anim="zoom"].in-view{animation-name:zoomIn}
+/* the existing .reveal blocks on the shop page get a nicer curve */
+.reveal{transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)!important}
+
+/* hero */
+.hero-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;animation:blobMove 16s ease-in-out infinite}
+.blob.b1{width:420px;height:420px;background:#e8c766;top:-120px;left:-80px}
+.blob.b2{width:360px;height:360px;background:#cba135;bottom:-140px;right:-60px;animation-delay:-6s;opacity:.4}
+.blob.b3{width:260px;height:260px;background:#f5e3a8;top:40%;left:45%;animation-delay:-11s;opacity:.5}
+html.dark .blob{opacity:.22}
+.grad-text{background:linear-gradient(100deg,#a87c1f,#e8c766,#a87c1f,#cba135);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:gradShift 7s ease infinite}
+.float{animation:floatY 6s ease-in-out infinite}
+.float.d1{animation-delay:-1.5s}.float.d2{animation-delay:-3s}.float.d3{animation-delay:-4.5s}
+.phone-card{background:#fff;border-radius:28px;box-shadow:0 30px 60px -20px rgba(22,20,15,.35);overflow:hidden;border:1px solid rgba(203,161,53,.25)}
+html.dark .phone-card{background:#1a1a1d;box-shadow:0 30px 60px -20px rgba(0,0,0,.8)}
+.ring{position:absolute;border:2px solid #cba135;border-radius:50%;animation:ringPulse 3.6s ease-out infinite}
+.ring.r2{animation-delay:1.2s}.ring.r3{animation-delay:2.4s}
+
+/* marquee */
+.marquee{overflow:hidden;white-space:nowrap;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.marquee-track{display:inline-flex;gap:3rem;animation:marquee 32s linear infinite;padding-right:3rem}
+.marquee:hover .marquee-track{animation-play-state:paused}
+
+/* cards, buttons, links */
+.lift{transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s,border-color .35s}
+.lift:hover{transform:translateY(-6px);box-shadow:0 22px 40px -18px rgba(22,20,15,.28);border-color:#cba135}
+.shine{position:relative;overflow:hidden}
+.shine::after{content:"";position:absolute;top:0;left:0;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);transform:translateX(-120%) skewX(-20deg)}
+.shine:hover::after{animation:shine .9s ease}
+.btn,.btn-gold{transition:transform .2s,opacity .2s,box-shadow .3s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px -10px rgba(203,161,53,.7)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn-gold{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(120deg,#cba135,#e8c766);color:#16140f;font-weight:600;border-radius:999px;padding:13px 26px;font-size:.9rem;position:relative;overflow:hidden}
+.btn-gold:hover{transform:translateY(-3px);box-shadow:0 16px 30px -12px rgba(203,161,53,.9)}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;border:1px solid #16140f33;color:inherit;border-radius:999px;padding:12px 24px;font-size:.9rem;font-weight:600;transition:all .25s}
+.btn-ghost:hover{border-color:#cba135;color:#a87c1f;transform:translateY(-2px)}
+html.dark .btn-ghost{border-color:#ffffff30}
+.nav-link{position:relative}
+.nav-link::after{content:"";position:absolute;left:0;bottom:-6px;height:2px;width:100%;background:#cba135;transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.nav-link:hover::after,.nav-link.is-active::after{transform:scaleX(1)}
+.nav-link.is-active{color:#16140f}
+html.dark .nav-link.is-active{color:#fff}
+#mainNav{transition:box-shadow .3s,background .3s}
+#mainNav.scrolled{box-shadow:0 10px 30px -18px rgba(22,20,15,.45)}
+.logo-pin{transform-origin:center;animation:pinPulse 2.6s ease-in-out infinite}
+.logo-full:hover .logo-pin{animation-duration:.8s}
+#cartCount.bump{animation:bump .4s}
+
+/* shop grid: cards rise in one after another */
+#productGrid>*{animation:riseIn .7s cubic-bezier(.2,.7,.2,1) both}
+#productGrid>*:nth-child(4n+2){animation-delay:.06s}#productGrid>*:nth-child(4n+3){animation-delay:.12s}#productGrid>*:nth-child(4n+4){animation-delay:.18s}
+#productGrid>*{transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s}
+#productGrid>*:hover{transform:translateY(-6px);box-shadow:0 24px 44px -20px rgba(22,20,15,.3)}
+#productGrid img{transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+#productGrid>*:hover img{transform:scale(1.06)}
+
+/* steps timeline */
+.tl-line{transform-origin:top;transform:scaleY(0)}
+.in-view .tl-line,.tl-line.in-view{animation:drawLine 1.2s .2s ease forwards}
+
+/* auth screen */
+.auth-wrap{min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr}
+.auth-brand{position:relative;overflow:hidden;background:#16140f;color:#f5f1e8;padding:48px;display:flex;flex-direction:column;justify-content:space-between}
+.auth-brand .blob{opacity:.28}
+.auth-form{display:flex;align-items:center;justify-content:center;padding:40px 24px;background:var(--bg)}
+.auth-card{width:100%;max-width:420px;animation:riseIn .8s .15s cubic-bezier(.2,.7,.2,1) both}
+.auth-card label{display:block;margin:16px 0 6px;font-weight:600;font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--faint)}
+.auth-card input{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 15px;font-size:.92rem;color:var(--ink);transition:border-color .2s,box-shadow .2s,transform .2s}
+.auth-card input:focus{outline:none;border-color:#cba135;box-shadow:0 0 0 4px rgba(203,161,53,.2);transform:translateY(-1px)}
+.auth-card .btn{width:100%;margin-top:22px;padding:14px}
+@media(max-width:900px){.auth-wrap{grid-template-columns:1fr}.auth-brand{display:none}}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  [data-anim]{opacity:1}
+}
